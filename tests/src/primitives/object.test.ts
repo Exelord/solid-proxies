@@ -60,6 +60,25 @@ describe("SignaledObject", () => {
 
       expect(spy).toBeCalledTimes(2);
     });
+
+    it("tracks property descriptor key", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = {} as any;
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(Object.getOwnPropertyDescriptor(signaledObject, "track"));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledObject.track = "value";
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
   });
 
   describe("defineProperty", () => {
@@ -146,6 +165,27 @@ describe("SignaledObject", () => {
 
       expect(spy).toBeCalledTimes(1);
     });
+
+    it("tracks property descriptor key", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = {} as any;
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(Object.getOwnPropertyDescriptor(signaledObject, "track"));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        Object.defineProperty(signaledObject, "track", {
+          value: "me",
+        });
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
   });
 
   describe("deleteProperty", () => {
@@ -223,6 +263,25 @@ describe("SignaledObject", () => {
       });
 
       expect(spy).toBeCalledTimes(1);
+    });
+
+    it("tracks property descriptor key", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = { track: "me" } as any;
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(Object.getOwnPropertyDescriptor(signaledObject, "track"));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        delete signaledObject.track;
+      });
+
+      expect(spy).toBeCalledTimes(2);
     });
   });
 });

@@ -1,77 +1,4 @@
-import { createCache } from "../utls/cache";
-
-const OBJECT_KEYS = Symbol("objectKeys");
-
-function createProxy(obj = {}) {
-  const propsSignals = createCache();
-  const keysSignals = createCache();
-
-  return new Proxy(obj, {
-    getPrototypeOf() {
-      return SignaledObject.prototype;
-    },
-
-    get(target, p) {
-      propsSignals.track(p);
-      return Reflect.get(target, p);
-    },
-
-    has(target, p) {
-      keysSignals.track(p);
-      return Reflect.has(target, p);
-    },
-
-    ownKeys(target) {
-      keysSignals.track(OBJECT_KEYS);
-      return Reflect.ownKeys(target);
-    },
-
-    set(target, p, value) {
-      const hasKey = Reflect.has(target, p);
-      const prevValue = Reflect.get(target, p);
-      const result = Reflect.set(target, p, value);
-
-      if (!hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
-      }
-
-      if (value !== prevValue) propsSignals.dirty(p);
-
-      return result;
-    },
-
-    defineProperty(target, p, attributes) {
-      const hasKey = Reflect.has(target, p);
-      const result = Reflect.defineProperty(target, p, attributes);
-      const value = Reflect.get(target, p);
-
-      if (!hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
-      }
-
-      if (value !== undefined) propsSignals.dirty(p);
-
-      return result;
-    },
-
-    deleteProperty(target, p) {
-      const hasKey = Reflect.has(target, p);
-      const currentValue = Reflect.get(target, p);
-      const result = Reflect.deleteProperty(target, p);
-
-      if (hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
-      }
-
-      if (currentValue !== undefined) propsSignals.dirty(p);
-
-      return result;
-    },
-  });
-}
+import { createHandler } from "../handlers/object";
 
 export class SignaledObject<T extends Record<PropertyKey, unknown>> {
   static fromEntries(entries: Iterable<readonly [PropertyKey, any]>) {
@@ -80,20 +7,25 @@ export class SignaledObject<T extends Record<PropertyKey, unknown>> {
 
   constructor(obj: T) {
     let proto = Object.getPrototypeOf(obj);
-    let descs = Object.getOwnPropertyDescriptors(obj);
+    let descriptors = Object.getOwnPropertyDescriptors(obj);
 
     let clone = Object.create(proto) as T;
 
-    for (let prop in descs) {
-      Object.defineProperty(clone, prop, descs[prop]);
+    for (let prop in descriptors) {
+      Object.defineProperty(clone, prop, descriptors[prop]);
     }
 
-    return createProxy(clone) as T;
+    return new Proxy(obj, {
+      ...createHandler<T>(),
+      getPrototypeOf() {
+        return SignaledObject.prototype;
+      },
+    });
   }
 }
 
 export function createObject<T extends Record<PropertyKey, unknown>>(
   object: T
-) {
+): T {
   return new SignaledObject(object) as T;
 }
