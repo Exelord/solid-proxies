@@ -89,9 +89,9 @@ users[0] = { name: "Exelord" } // This change will rerun the effect
 and
 
 ```js
-import { createObject } from 'solid-proxies';
+import { createArray } from 'solid-proxies';
 
-const users = createObject([{ name: "Maciej" }])
+const users = createArray([{ name: "Maciej" }])
 
 createEffect(() => {
   console.log(users[0].name);
