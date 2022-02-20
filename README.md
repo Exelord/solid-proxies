@@ -9,7 +9,7 @@ This package provides signaled versions of Javascript's built-in objects. Thanks
 Signaled built-ins:
 
 - Object
-- Array (coming soon)
+- Array
 - Map (coming soon)
 - WeakMap (coming soon)
 - Set (coming soon)
@@ -64,4 +64,41 @@ createEffect(() => {
 user.name = "Exelord" // This change will rerun the effect
 ```
 
-**Important** SignaledObjects are not deep wrapped. Means an object in SignaledObject would need to be signaled manually.
+**Important** SignaledObjects are not deep wrapped. Means an object in SignaledObject would need to be signaled individually.
+
+
+### SignaledArray
+
+`SignaledArray` will track any changes in the array automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+
+There are 2 ways of how you can use `SignaledArray`:
+
+```js
+import { SignaledArray } from 'solid-proxies';
+
+const users = new SignaledArray([{ name: "Maciej" }])
+
+createEffect(() => {
+  console.log(users[0].name);
+})
+
+// After some time...
+users[0] = { name: "Exelord" } // This change will rerun the effect
+```
+
+and
+
+```js
+import { createObject } from 'solid-proxies';
+
+const users = createObject([{ name: "Maciej" }])
+
+createEffect(() => {
+  console.log(users[0].name);
+})
+
+// After some time...
+users[0] = { name: "Exelord" } // This change will rerun the effect
+```
+
+**Important** SignaledArrays are not deep wrapped. Means an array or object in SignaledObject would need to be signaled individually.
