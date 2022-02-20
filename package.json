@@ -1,7 +1,21 @@
 {
   "name": "solid-proxies",
-  "description": "Solid.js library adding signaling to built-in non-primitives",
   "version": "0.0.0",
+  "description": "Solid.js library adding signaling to built-in non-primitives",
+  "homepage": "https://github.com/Exelord/solid-proxies",
+  "contributors": [
+    {
+      "name": "Maciej Kwaśniak",
+      "email": "contact@exelord.com",
+      "url": "https://exelord.com"
+    }
+  ],
+  "keywords": [
+    "solidhack",
+    "best_ecosystem",
+    "solidjs"
+  ],
+  "license": "MIT",
   "files": [
     "dist"
   ],
