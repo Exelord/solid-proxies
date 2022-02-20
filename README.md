@@ -28,6 +28,8 @@ npm i solid-proxies
 
 ## Demo
 
+CodeSandbox demo: [Link](https://codesandbox.io/s/solid-proxies-pt2slm)
+
 ## Usage
 
 ### SignaledObject
