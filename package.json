@@ -1,6 +1,6 @@
 {
   "name": "solid-proxies",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Solid.js library adding signaling to built-in non-primitives",
   "homepage": "https://github.com/Exelord/solid-proxies",
   "contributors": [
