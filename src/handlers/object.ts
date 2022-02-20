@@ -19,28 +19,28 @@ export interface ObjectProxyHandler<T extends Object> extends ProxyHandler<T> {
   set(target: T, p: string | symbol, value: any, receiver: any): boolean;
 }
 
-export function createHandler<T extends Object>(): ObjectProxyHandler<T> {
-  const valuesSignals = createCache();
-  const keysSignals = createCache();
-
+export function createHandler<T extends Object>(
+  propertiesCache = createCache(),
+  descriptorsCache = createCache()
+): ObjectProxyHandler<T> {
   const handler: ObjectProxyHandler<T> = {
     get(target, p) {
-      valuesSignals.track(p);
+      propertiesCache.track(p);
       return Reflect.get(target, p);
     },
 
     has(target, p) {
-      keysSignals.track(p);
+      descriptorsCache.track(p);
       return Reflect.has(target, p);
     },
 
     getOwnPropertyDescriptor(target: T, p: string | symbol) {
-      keysSignals.track(p);
+      descriptorsCache.track(p);
       return Reflect.getOwnPropertyDescriptor(target, p);
     },
 
     ownKeys(target) {
-      keysSignals.track(OBJECT_KEYS);
+      descriptorsCache.track(OBJECT_KEYS);
       return Reflect.ownKeys(target);
     },
 
@@ -50,11 +50,11 @@ export function createHandler<T extends Object>(): ObjectProxyHandler<T> {
       const result = Reflect.set(target, p, value);
 
       if (!hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
+        descriptorsCache.dirty(OBJECT_KEYS);
+        descriptorsCache.dirty(p);
       }
 
-      if (value !== prevValue) valuesSignals.dirty(p);
+      if (value !== prevValue) propertiesCache.dirty(p);
 
       return result;
     },
@@ -65,11 +65,11 @@ export function createHandler<T extends Object>(): ObjectProxyHandler<T> {
       const value = Reflect.get(target, p);
 
       if (!hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
+        descriptorsCache.dirty(OBJECT_KEYS);
+        descriptorsCache.dirty(p);
       }
 
-      if (value !== undefined) valuesSignals.dirty(p);
+      if (value !== undefined) propertiesCache.dirty(p);
 
       return result;
     },
@@ -80,11 +80,11 @@ export function createHandler<T extends Object>(): ObjectProxyHandler<T> {
       const result = Reflect.deleteProperty(target, p);
 
       if (hasKey) {
-        keysSignals.dirty(OBJECT_KEYS);
-        keysSignals.dirty(p);
+        descriptorsCache.dirty(OBJECT_KEYS);
+        descriptorsCache.dirty(p);
       }
 
-      if (currentValue !== undefined) valuesSignals.dirty(p);
+      if (currentValue !== undefined) propertiesCache.dirty(p);
 
       return result;
     },

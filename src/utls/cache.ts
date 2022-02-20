@@ -1,6 +1,11 @@
 import { Accessor, createSignal, Setter } from "solid-js";
 
-export function createCache() {
+export interface SignaledCache {
+  track(key: PropertyKey): void;
+  dirty(key: PropertyKey): void;
+}
+
+export function createCache(): SignaledCache {
   const cache = new Map<
     PropertyKey,
     [state: Accessor<any>, setState: Setter<any>]
