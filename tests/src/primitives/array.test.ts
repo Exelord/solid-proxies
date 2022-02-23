@@ -21,6 +21,71 @@ describe("SignaledArray", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
+  describe("Array.prototype.splice", () => {
+    it("items that did change do react to splice", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const array = ["1", "2", "3"];
+        const signaledArray = createArray(array);
+
+        createRenderEffect(() => {
+          spy(signaledArray[2]);
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledArray.splice(1, 1);
+
+        expect(signaledArray).toEqual(["1", "3"]);
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+
+    it("collection reacts to splice", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const array = ["1", "2", "3"];
+        const signaledArray = createArray(array);
+
+        createRenderEffect(() => {
+          spy(signaledArray.forEach(() => {}));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledArray.splice(1, 1);
+
+        expect(signaledArray).toEqual(["1", "3"]);
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+
+    it("items that didn't change do not react to splice", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const array = ["1", "2", "3"];
+        const signaledArray = createArray(array);
+
+        createRenderEffect(() => {
+          spy(signaledArray[0]);
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledArray.splice(1, 1);
+
+        expect(signaledArray).toEqual(["1", "3"]);
+      });
+
+      expect(spy).toBeCalledTimes(1);
+    });
+  });
+
   describe("set", () => {
     it("uses signal to track existing properties", () => {
       const spy = vi.fn();
