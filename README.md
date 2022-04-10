@@ -4,7 +4,7 @@
 
 # Solid Proxies
 
-This package provides signaled versions of Javascript's built-in objects. Thanks to it, all theirs properties will be automatically tracked while using standard API.
+This package provides signaled versions of Javascript's built-in objects. Thanks to it, all theirs properties will be automatically tracked while using standard API. That means all operations like array's `push`, `slice` or direct index access `track['me']` will only trigger an update of specific values. The granular reactivity will make sure your effects will not rerun without a need.
 
 Signaled built-ins:
 
