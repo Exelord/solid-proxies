@@ -21,6 +21,27 @@ describe("SignaledArray", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
+  describe("Array.prototype.push", () => {
+    it("items that has been added do react", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const array = ["1", "2", "3"];
+        const signaledArray = createArray(array);
+
+        createRenderEffect(() => {
+          spy(signaledArray[3]);
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledArray.push("4");
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+  });
+
   describe("Array.prototype.splice", () => {
     it("items that did change do react to splice", () => {
       const spy = vi.fn();
