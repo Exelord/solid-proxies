@@ -1,23 +1,28 @@
 import { Accessor, createSignal, Setter } from "solid-js";
 
 export interface SignaledCache {
-  track(key: PropertyKey): void;
-  dirty(key: PropertyKey): void;
+  track(key: unknown): void;
+  dirty(key: unknown): void;
+  dirtyAll(): void;
 }
 
 export function createCache(): SignaledCache {
   const cache = new Map<
-    PropertyKey,
+    unknown,
     [state: Accessor<any>, setState: Setter<any>]
   >();
 
   return Object.freeze({
-    dirty(key: PropertyKey): void {
+    dirtyAll(): void {
+      cache.forEach((signal) => signal[1]());
+    },
+
+    dirty(key: unknown): void {
       const signal = cache.get(key);
       if (signal) signal[1]();
     },
 
-    track(key: PropertyKey): void {
+    track(key: unknown): void {
       let signal = cache.get(key);
 
       if (signal) {
