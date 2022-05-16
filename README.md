@@ -10,7 +10,7 @@ Signaled built-ins:
 
 - Object
 - Array
-- Map (coming soon)
+- Map
 - WeakMap (coming soon)
 - Set (coming soon)
 - WeakSet (coming soon)
@@ -104,3 +104,37 @@ users[0] = { name: "Exelord" } // This change will rerun the effect
 ```
 
 **Important** SignaledArrays are not deep wrapped. Means an array or object in SignaledObject would need to be signaled individually.
+
+### SignaledMap
+
+`SignaledMap` will track any changes in the Map automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+
+There are 2 ways of how you can use `SignaledMap`:
+
+```js
+import { SignaledMap } from 'solid-proxies';
+
+const props = new SignaledMap([["name", "Maciej"]])
+
+createEffect(() => {
+  console.log(props.get('name'));
+})
+
+// After some time...
+props.set('name', 'Exelord')) // This change will rerun the effect
+```
+
+and
+
+```js
+import { createMap } from 'solid-proxies';
+
+const props = createMap([["name", "Maciej"]])
+
+createEffect(() => {
+  console.log(props.get('name'));
+})
+
+// After some time...
+props.set('name', 'Exelord')) // This change will rerun the effect
+```
