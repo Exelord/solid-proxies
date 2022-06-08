@@ -1,27 +1,8 @@
 import { createRenderEffect, createRoot } from "solid-js";
 import { describe, it, expect, vi } from "vitest";
-import { createObject, SignaledObject } from "../../../src/primitives/object";
+import { createObject } from "../../../src/primitives/object";
 
 describe("SignaledObject", () => {
-  it("works with SignaledObject syntax", () => {
-    const spy = vi.fn();
-
-    createRoot(() => {
-      const object = { track: "me" };
-      const signaledObject = new SignaledObject(object);
-
-      createRenderEffect(() => {
-        spy(signaledObject.track);
-      });
-
-      expect(spy).toBeCalledTimes(1);
-
-      signaledObject.track = "yeah";
-    });
-
-    expect(spy).toBeCalledTimes(2);
-  });
-
   describe("set", () => {
     it("uses signal to track properties", () => {
       const spy = vi.fn();

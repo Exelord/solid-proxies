@@ -1,6 +1,6 @@
 import { createRenderEffect, createRoot } from "solid-js";
 import { describe, it, expect, vi } from "vitest";
-import { createMap, SignaledMap } from "../../../src/primitives/map";
+import { createMap } from "../../../src/primitives/map";
 
 describe("SignaledMap", () => {
   it("works with no passed map", () => {
@@ -8,25 +8,6 @@ describe("SignaledMap", () => {
 
     createRoot(() => {
       const signaledMap = createMap();
-
-      createRenderEffect(() => {
-        spy(signaledMap.get("track"));
-      });
-
-      expect(spy).toBeCalledTimes(1);
-
-      signaledMap.set("track", "yeah");
-    });
-
-    expect(spy).toBeCalledTimes(2);
-  });
-
-  it("works with SignaledMap syntax", () => {
-    const spy = vi.fn();
-
-    createRoot(() => {
-      const map = new Map([["track", "me"]]);
-      const signaledMap = new SignaledMap(map);
 
       createRenderEffect(() => {
         spy(signaledMap.get("track"));

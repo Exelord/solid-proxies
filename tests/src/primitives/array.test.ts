@@ -1,26 +1,8 @@
 import { createRenderEffect, createRoot } from "solid-js";
 import { describe, it, expect, vi } from "vitest";
-import { createArray, SignaledArray } from "../../../src/primitives/array";
+import { createArray } from "../../../src/primitives/array";
 
 describe("SignaledArray", () => {
-  it("works with SignaledArray syntax", () => {
-    const spy = vi.fn();
-
-    createRoot(() => {
-      const signaledArray = new SignaledArray([]);
-
-      createRenderEffect(() => {
-        spy(signaledArray[0]);
-      });
-
-      expect(spy).toBeCalledTimes(1);
-
-      signaledArray[0] = "yeah";
-    });
-
-    expect(spy).toBeCalledTimes(2);
-  });
-
   describe("Array.prototype.push", () => {
     it("items that has been added do react", () => {
       const spy = vi.fn();

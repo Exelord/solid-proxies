@@ -2,7 +2,7 @@ import { createCache, track, dirty, dirtyAll } from "../utls/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
 
-export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
+class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   private readonly signalsCache = createCache();
   private readonly valuesCache: Map<K, V>;
 

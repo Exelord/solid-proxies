@@ -20,7 +20,7 @@ interface SignaledArray {
   new <T = unknown>(array: T[]): T[];
 }
 
-export const SignaledArray = function <T = unknown>(array: T[]): T[] {
+const SignaledArray = function <T = unknown>(array: T[]): T[] {
   return new Proxy(array.slice(), {
     ...createHandler<T[]>(),
     getPrototypeOf() {

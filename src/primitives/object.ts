@@ -10,7 +10,7 @@ interface SignaledObject {
   ): T;
 }
 
-export const SignaledObject = function <T extends Record<PropertyKey, unknown>>(
+const SignaledObject = function <T extends Record<PropertyKey, unknown>>(
   obj: T
 ): T {
   let proto = Object.getPrototypeOf(obj);

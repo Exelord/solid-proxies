@@ -36,23 +36,6 @@ CodeSandbox demo: [Link](https://codesandbox.io/s/solid-proxies-pt2slm)
 
 `SignaledObject` will track all properties changes automatically. Setting new values, deleting, or checking keys will make your code react to changes.
 
-There are 2 ways of how you can use `SignaledObject`:
-
-```js
-import { SignaledObject } from 'solid-proxies';
-
-const user = new SignaledObject({ name: "Maciej" })
-
-createEffect(() => {
-  console.log(user.name);
-})
-
-// After some time...
-user.name = "Exelord" // This change will rerun the effect
-```
-
-and
-
 ```js
 import { createObject } from 'solid-proxies';
 
@@ -73,23 +56,6 @@ user.name = "Exelord" // This change will rerun the effect
 
 `SignaledArray` will track any changes in the array automatically. Setting new values, deleting, or checking keys will make your code react to changes.
 
-There are 2 ways of how you can use `SignaledArray`:
-
-```js
-import { SignaledArray } from 'solid-proxies';
-
-const users = new SignaledArray([{ name: "Maciej" }])
-
-createEffect(() => {
-  console.log(users[0].name);
-})
-
-// After some time...
-users[0] = { name: "Exelord" } // This change will rerun the effect
-```
-
-and
-
 ```js
 import { createArray } from 'solid-proxies';
 
@@ -108,23 +74,6 @@ users[0] = { name: "Exelord" } // This change will rerun the effect
 ### SignaledMap
 
 `SignaledMap` will track any changes in the Map automatically. Setting new values, deleting, or checking keys will make your code react to changes.
-
-There are 2 ways of how you can use `SignaledMap`:
-
-```js
-import { SignaledMap } from 'solid-proxies';
-
-const props = new SignaledMap([["name", "Maciej"]])
-
-createEffect(() => {
-  console.log(props.get('name'));
-})
-
-// After some time...
-props.set('name', 'Exelord')) // This change will rerun the effect
-```
-
-and
 
 ```js
 import { createMap } from 'solid-proxies';
