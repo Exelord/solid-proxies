@@ -99,7 +99,6 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   }
 }
 
-// So instanceof works
 Object.setPrototypeOf(SignaledMap.prototype, Map.prototype);
 
 export function createMap<K = unknown, V = unknown>(map: Map<K, V>): Map<K, V> {
