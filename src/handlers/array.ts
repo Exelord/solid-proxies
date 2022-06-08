@@ -1,4 +1,4 @@
-import { createCache } from "../utls/cache";
+import { createCache, track } from "../utls/cache";
 import {
   createHandler as createObjectHandler,
   ObjectProxyHandler,
@@ -24,9 +24,9 @@ export function createHandler<T extends Object>(): ArrayProxyHandler<T> {
 
     get(target, p) {
       if (arrayProps.includes(p)) {
-        descriptorsCache.track(OBJECT_KEYS);
+        track(OBJECT_KEYS, descriptorsCache);
       } else {
-        propertiesCache.track(p);
+        track(p, propertiesCache);
       }
 
       return Reflect.get(target, p);

@@ -1,34 +1,40 @@
-import { Accessor, createSignal, Setter } from "solid-js";
+import { createSignal, Signal } from "solid-js";
 
-export class SignaledCache {
-  private readonly cache = new Map<
-    unknown,
-    [state: Accessor<any>, setState: Setter<any>]
-  >();
+type Cache = Map<unknown, Signal<any>> | WeakMap<object, Signal<any>>;
 
-  dirtyAll(): void {
-    this.cache.forEach((signal) => signal[1]());
-  }
+export function track(key: unknown, cache: Map<unknown, Signal<any>>): void;
+export function track<T>(
+  key: object,
+  cache: WeakMap<object, Signal<any>>
+): void;
+export function track(key: any, cache: Cache): void {
+  let signal = cache.get(key);
 
-  dirty(key: unknown): void {
-    const signal = this.cache.get(key);
-    if (signal) signal[1]();
-  }
-
-  track(key: unknown): void {
-    let signal = this.cache.get(key);
-
-    if (signal) {
-      signal[0]();
-      return;
-    }
-
-    signal = createSignal(undefined, { equals: false });
-    this.cache.set(key, signal);
+  if (signal) {
     signal[0]();
+    return;
   }
+
+  signal = createSignal(undefined, { equals: false });
+  cache.set(key, signal);
+  signal[0]();
 }
 
-export function createCache(): SignaledCache {
-  return new SignaledCache();
+export function dirty(key: unknown, cache: Map<unknown, Signal<any>>): void;
+export function dirty(key: object, cache: WeakMap<object, Signal<any>>): void;
+export function dirty(key: any, cache: Cache): void {
+  const signal = cache.get(key);
+  if (signal) signal[1]();
+}
+
+export function dirtyAll(cache: Map<unknown, Signal<any>>): void {
+  cache.forEach((signal) => signal[1]());
+}
+
+export function createCache(): Map<unknown, Signal<any>> {
+  return new Map<unknown, Signal<any>>();
+}
+
+export function createWeakCache(): WeakMap<object, Signal<any>> {
+  return new WeakMap<object, Signal<any>>();
 }

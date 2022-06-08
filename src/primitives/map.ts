@@ -1,4 +1,4 @@
-import { createCache } from "../utls/cache";
+import { createCache, track, dirty, dirtyAll } from "../utls/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
 
@@ -22,7 +22,7 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   }
 
   get size(): number {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     return this.valuesCache.size;
   }
 
@@ -31,37 +31,37 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     return this.valuesCache[Symbol.iterator]();
   }
 
   get(key: K): V | undefined {
-    this.signalsCache.track(key);
+    track(key, this.signalsCache);
     return this.valuesCache.get(key);
   }
 
   has(key: K): boolean {
-    this.signalsCache.track(key);
+    track(key, this.signalsCache);
     return this.valuesCache.has(key);
   }
 
   entries(): IterableIterator<[K, V]> {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     return this.valuesCache.entries();
   }
 
   keys(): IterableIterator<K> {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     return this.valuesCache.keys();
   }
 
   values(): IterableIterator<V> {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     return this.valuesCache.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    this.signalsCache.track(OBJECT_KEYS);
+    track(OBJECT_KEYS, this.signalsCache);
     this.valuesCache.forEach(fn);
   }
 
@@ -71,8 +71,8 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
 
     this.valuesCache.set(key, value);
 
-    if (!hasKey || value !== prevValue) this.signalsCache.dirty(OBJECT_KEYS);
-    if (value !== prevValue) this.signalsCache.dirty(key);
+    if (!hasKey || value !== prevValue) dirty(OBJECT_KEYS, this.signalsCache);
+    if (value !== prevValue) dirty(key, this.signalsCache);
 
     return this;
   }
@@ -83,16 +83,16 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
     const currentValue = this.valuesCache.get(key);
     const result = this.valuesCache.delete(key);
 
-    this.signalsCache.dirty(OBJECT_KEYS);
+    dirty(OBJECT_KEYS, this.signalsCache);
 
-    if (currentValue !== undefined) this.signalsCache.dirty(key);
+    if (currentValue !== undefined) dirty(key, this.signalsCache);
 
     return result;
   }
 
   clear(): void {
-    this.signalsCache.dirtyAll();
-    this.signalsCache.dirty(OBJECT_KEYS);
+    dirtyAll(this.signalsCache);
+    dirty(OBJECT_KEYS, this.signalsCache);
 
     this.valuesCache.clear();
   }

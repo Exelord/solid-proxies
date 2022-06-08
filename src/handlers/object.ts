@@ -1,4 +1,4 @@
-import { createCache } from "../utls/cache";
+import { createCache, track, dirty } from "../utls/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
 
@@ -25,22 +25,22 @@ export function createHandler<T extends Object>(
 ): ObjectProxyHandler<T> {
   const handler: ObjectProxyHandler<T> = {
     get(target, p) {
-      propertiesCache.track(p);
+      track(p, propertiesCache);
       return Reflect.get(target, p);
     },
 
     has(target, p) {
-      descriptorsCache.track(p);
+      track(p, descriptorsCache);
       return Reflect.has(target, p);
     },
 
     getOwnPropertyDescriptor(target: T, p: string | symbol) {
-      descriptorsCache.track(p);
+      track(p, descriptorsCache);
       return Reflect.getOwnPropertyDescriptor(target, p);
     },
 
     ownKeys(target) {
-      descriptorsCache.track(OBJECT_KEYS);
+      track(OBJECT_KEYS, descriptorsCache);
       return Reflect.ownKeys(target);
     },
 
@@ -50,11 +50,11 @@ export function createHandler<T extends Object>(
       const result = Reflect.set(target, p, value);
 
       if (!hasKey) {
-        descriptorsCache.dirty(OBJECT_KEYS);
-        descriptorsCache.dirty(p);
+        dirty(OBJECT_KEYS, descriptorsCache);
+        dirty(p, descriptorsCache);
       }
 
-      if (value !== prevValue) propertiesCache.dirty(p);
+      if (value !== prevValue) dirty(p, propertiesCache);
 
       return result;
     },
@@ -65,11 +65,11 @@ export function createHandler<T extends Object>(
       const value = Reflect.get(target, p);
 
       if (!hasKey) {
-        descriptorsCache.dirty(OBJECT_KEYS);
-        descriptorsCache.dirty(p);
+        dirty(OBJECT_KEYS, descriptorsCache);
+        dirty(p, descriptorsCache);
       }
 
-      if (value !== undefined) propertiesCache.dirty(p);
+      if (value !== undefined) dirty(p, propertiesCache);
 
       return result;
     },
@@ -80,11 +80,11 @@ export function createHandler<T extends Object>(
       const result = Reflect.deleteProperty(target, p);
 
       if (hasKey) {
-        descriptorsCache.dirty(OBJECT_KEYS);
-        descriptorsCache.dirty(p);
+        dirty(OBJECT_KEYS, descriptorsCache);
+        dirty(p, descriptorsCache);
       }
 
-      if (currentValue !== undefined) propertiesCache.dirty(p);
+      if (currentValue !== undefined) dirty(p, propertiesCache);
 
       return result;
     },
