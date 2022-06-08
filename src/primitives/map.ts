@@ -7,8 +7,8 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   private readonly valuesCache: Map<K, V>;
 
   constructor();
-  constructor(entries: readonly (readonly [K, V])[] | null);
-  constructor(iterable: Iterable<readonly [K, V]>);
+  constructor(entries?: readonly (readonly [K, V])[] | null);
+  constructor(iterable?: Iterable<readonly [K, V]>);
   constructor(
     existing?:
       | readonly (readonly [K, V])[]
@@ -100,8 +100,21 @@ export class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
 
 Object.setPrototypeOf(SignaledMap.prototype, Map.prototype);
 
+export function createMap(): Map<any, any>;
 export function createMap<K = unknown, V = unknown>(
-  map?: Map<K, V>
+  entries?: readonly (readonly [K, V])[] | null
+): Map<K, V>;
+export function createMap<K = unknown, V = unknown>(
+  iterable?: Iterable<readonly [K, V]>
+): Map<K, V>;
+export function createMap<K = unknown, V = unknown>(
+  existing?:
+    | readonly (readonly [K, V])[]
+    | Iterable<readonly [K, V]>
+    | null
+    | undefined
 ): Map<K, V> {
-  return map ? new SignaledMap<K, V>(map) : new SignaledMap<K, V>();
+  return existing
+    ? new SignaledMap<K, V>(existing)
+    : new SignaledMap<any, any>();
 }
