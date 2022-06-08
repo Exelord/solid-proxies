@@ -88,9 +88,9 @@ createEffect(() => {
 props.set(1, 'Exelord')) // This change will rerun the effect
 ```
 
-### SignaledMap
+### SignaledWeakMap
 
-`SignaledMap` will track any changes in the WeakMap automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+`SignaledWeakMap` will track any changes in the WeakMap automatically. Setting new values, deleting, or checking keys will make your code react to changes.
 
 ```js
 import { createWeakMap } from 'solid-proxies';
