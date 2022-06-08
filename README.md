@@ -11,7 +11,7 @@ Signaled built-ins:
 - Object
 - Array
 - Map
-- WeakMap (coming soon)
+- WeakMap
 - Set (coming soon)
 - WeakSet (coming soon)
 
@@ -78,12 +78,30 @@ users[0] = { name: "Exelord" } // This change will rerun the effect
 ```js
 import { createMap } from 'solid-proxies';
 
-const props = createMap([["name", "Maciej"]])
+const people = createMap([[1, "Maciej"]])
 
 createEffect(() => {
-  console.log(props.get('name'));
+  console.log(props.get(1));
 })
 
 // After some time...
-props.set('name', 'Exelord')) // This change will rerun the effect
+props.set(1, 'Exelord')) // This change will rerun the effect
+```
+
+### SignaledMap
+
+`SignaledMap` will track any changes in the WeakMap automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+
+```js
+import { createWeakMap } from 'solid-proxies';
+
+const person = { name: "Maciej" };
+const people = createWeakMap([[person, ({ name }) => `Hello ${name}!`]])
+
+createEffect(() => {
+  console.log(people.get(person)?.(person))
+})
+
+// After some time...
+props.set(person, ({ name}) => `Welcome ${name}!`) // This change will rerun the effect
 ```
