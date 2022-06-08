@@ -3,6 +3,24 @@ import { describe, it, expect, vi } from "vitest";
 import { createMap, SignaledMap } from "../../../src/primitives/map";
 
 describe("SignaledMap", () => {
+  it("works with no passed map", () => {
+    const spy = vi.fn();
+
+    createRoot(() => {
+      const signaledMap = createMap();
+
+      createRenderEffect(() => {
+        spy(signaledMap.get("track"));
+      });
+
+      expect(spy).toBeCalledTimes(1);
+
+      signaledMap.set("track", "yeah");
+    });
+
+    expect(spy).toBeCalledTimes(2);
+  });
+
   it("works with SignaledMap syntax", () => {
     const spy = vi.fn();
 
