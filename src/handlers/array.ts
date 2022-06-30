@@ -1,4 +1,4 @@
-import { createCache, track } from "../utls/cache";
+import { createCache, track } from "../utils/cache";
 import {
   createHandler as createObjectHandler,
   ObjectProxyHandler,

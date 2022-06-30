@@ -1,4 +1,4 @@
-import { createCache, track, dirty, dirtyAll } from "../utls/cache";
+import { createCache, track, dirty, dirtyAll } from "../utils/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
 

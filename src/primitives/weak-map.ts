@@ -1,4 +1,4 @@
-import { createWeakCache, track, dirty } from "../utls/cache";
+import { createWeakCache, track, dirty } from "../utils/cache";
 
 class SignaledWeakMap<K extends object = object, V = unknown>
   implements WeakMap<K, V>
