@@ -1,6 +1,6 @@
 import { createCache, track, dirty, dirtyAll } from "../utils/cache";
 
-export const OBJECT_KEYS = Symbol("objectKeys");
+const OBJECT_KEYS = Symbol("objectKeys");
 
 class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
   private readonly signalsCache = createCache();
@@ -71,30 +71,30 @@ class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
 
     this.valuesCache.set(key, value);
 
-    if (!hasKey || value !== prevValue) dirty(OBJECT_KEYS, this.signalsCache);
-    if (value !== prevValue) dirty(key, this.signalsCache);
+    if (value !== prevValue) {
+      if (!hasKey) dirty(OBJECT_KEYS, this.signalsCache);
+      dirty(key, this.signalsCache);
+    }
 
     return this;
   }
 
   delete(key: K): boolean {
-    if (!this.valuesCache.has(key)) return false;
-
     const currentValue = this.valuesCache.get(key);
     const result = this.valuesCache.delete(key);
 
-    dirty(OBJECT_KEYS, this.signalsCache);
-
-    if (currentValue !== undefined) dirty(key, this.signalsCache);
+    if (result) {
+      dirty(OBJECT_KEYS, this.signalsCache);
+      if (currentValue !== undefined) dirty(key, this.signalsCache);
+    }
 
     return result;
   }
 
   clear(): void {
+    this.valuesCache.clear();
     dirtyAll(this.signalsCache);
     dirty(OBJECT_KEYS, this.signalsCache);
-
-    this.valuesCache.clear();
   }
 }
 
