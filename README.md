@@ -12,7 +12,7 @@ Signaled built-ins:
 - Array
 - Map
 - WeakMap
-- Set (coming soon)
+- Set
 - WeakSet (coming soon)
 
 
@@ -104,4 +104,21 @@ createEffect(() => {
 
 // After some time...
 props.set(person, ({ name}) => `Welcome ${name}!`) // This change will rerun the effect
+```
+
+### SignaledSet
+
+`SignaledSet` will track any changes in the Set automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+
+```js
+import { createSet } from 'solid-proxies';
+
+const people = createSet(["Maciej"])
+
+createEffect(() => {
+  console.log(props.has("Exelord"));
+})
+
+// After some time...
+props.add("Exelord")) // This change will rerun the effect
 ```
