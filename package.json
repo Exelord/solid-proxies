@@ -64,7 +64,7 @@
     "solid-js": "^1.0.0"
   },
   "devDependencies": {
-    "@vitest/ui": "^0.21.1",
+    "@vitest/ui": "^0.22.1",
     "c8": "^7.12.0",
     "npm-run-all": "^4.1.5",
     "release-it": "^15.3.0",
