@@ -71,7 +71,7 @@
     "solid-js": "^1.4.8",
     "typescript": "^4.7.4",
     "vite": "^2.9.15",
-    "vitest": "^0.21.1"
+    "vitest": "^0.24.4"
   },
   "engines": {
     "node": "14 || 16 || >=18"
