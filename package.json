@@ -1,6 +1,6 @@
 {
   "name": "solid-proxies",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Solid.js library adding signaling to built-in non-primitives",
   "info": "This package provides signaled versions of Javascript's built-in objects. Thanks to it, all theirs properties will be automatically tracked while using standard API. That means all operations like array's `push`, `slice` or direct index access `track['me']` will only trigger an update of specific values. The granular reactivity will make sure your effects will not rerun without a need.",
   "homepage": "https://github.com/Exelord/solid-proxies",
