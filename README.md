@@ -13,8 +13,7 @@ Signaled built-ins:
 - Map
 - WeakMap
 - Set
-- WeakSet (coming soon)
-
+- WeakSet
 
 ## Installation
 
@@ -51,7 +50,6 @@ user.name = "Exelord" // This change will rerun the effect
 
 **Important** SignaledObjects are not deep wrapped. Means an object in SignaledObject would need to be signaled individually.
 
-
 ### SignaledArray
 
 `SignaledArray` will track any changes in the array automatically. Setting new values, deleting, or checking keys will make your code react to changes.
@@ -85,7 +83,7 @@ createEffect(() => {
 })
 
 // After some time...
-props.set(1, 'Exelord')) // This change will rerun the effect
+props.set(1, 'Exelord') // This change will rerun the effect
 ```
 
 ### SignaledWeakMap
@@ -120,5 +118,23 @@ createEffect(() => {
 })
 
 // After some time...
-props.add("Exelord")) // This change will rerun the effect
+props.add("Exelord") // This change will rerun the effect
+```
+
+### SignaledWeakSet
+
+`SignaledWeakSet` will track any changes in the WeakSet automatically. Setting new values, deleting, or checking keys will make your code react to changes.
+
+```js
+import { createWeakSet } from 'solid-proxies';
+
+const person = { name: "Exelord" }
+const people = createWeakSet()
+
+createEffect(() => {
+  console.log(props.has(person));
+})
+
+// After some time...
+props.add(person) // This change will rerun the effect
 ```
