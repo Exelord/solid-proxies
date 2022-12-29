@@ -1,7 +1,7 @@
-import { createCache, track, dirty } from "../utils/cache";
+import { createWeakCache, track, dirty } from "../utils/cache";
 
 class SignaledWeakSet<T extends object = object> implements WeakSet<T> {
-  private readonly signalsCache = createCache();
+  private readonly signalsCache = createWeakCache();
   private readonly valuesCache: WeakSet<T>;
 
   constructor(values?: readonly T[] | null) {
