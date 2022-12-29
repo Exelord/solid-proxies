@@ -5,7 +5,8 @@ import {
   OBJECT_KEYS,
 } from "./object";
 
-export interface ArrayProxyHandler<T> extends ObjectProxyHandler<T> {}
+export interface ArrayProxyHandler<T extends Object>
+  extends ObjectProxyHandler<T> {}
 
 const arrayProps: Array<string | Symbol> = [
   "length",
