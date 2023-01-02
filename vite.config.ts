@@ -12,9 +12,7 @@ export default defineConfig({
       external: ["solid-js"],
     },
   },
-  test: {
-    transformMode: {
-      web: [/\.[jt]s$/],
-    },
+  resolve: {
+    conditions: ["browser"],
   },
 });
