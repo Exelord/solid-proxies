@@ -283,5 +283,27 @@ describe("SignaledObject", () => {
 
       expect(spy).toBeCalledTimes(2);
     });
+
+    it("tracks after descriptor has been removed", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = { track: "me" } as any;
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(signaledObject.track);
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        delete signaledObject.track;
+
+        signaledObject.track = "you";
+      });
+
+      expect(spy).nthCalledWith(1, "me");
+      expect(spy).nthCalledWith(2, "you");
+    });
   });
 });
