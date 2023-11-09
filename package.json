@@ -11,15 +11,9 @@
       "url": "https://exelord.com"
     }
   ],
-  "keywords": [
-    "solidhack",
-    "best_ecosystem",
-    "solidjs"
-  ],
+  "keywords": ["solidhack", "best_ecosystem", "solidjs"],
   "license": "MIT",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "main": "./dist/solid-proxies.cjs",
   "module": "./dist/solid-proxies.js",
   "types": "./dist/types/index.d.ts",
@@ -29,7 +23,8 @@
   "exports": {
     ".": {
       "import": "./dist/solid-proxies.js",
-      "require": "./dist/solid-proxies.cjs"
+      "require": "./dist/solid-proxies.cjs",
+      "types": "./dist/types/index.d.ts"
     }
   },
   "scripts": {
@@ -56,9 +51,7 @@
       "releaseName": "v${version}"
     },
     "hooks": {
-      "before:init": [
-        "vitest run"
-      ]
+      "before:init": ["vitest run"]
     }
   },
   "peerDependencies": {
