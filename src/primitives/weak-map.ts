@@ -1,76 +1,53 @@
 import { createWeakCache, track, dirty } from "../utils/cache";
 
-class SignaledWeakMap<K extends object = object, V = unknown>
-  implements WeakMap<K, V>
-{
-  private readonly signalsCache = createWeakCache();
+export class SignaledWeakMap<K extends object = object, V = any> extends WeakMap<
+  K,
+  V
+> {
+  private readonly keysCache = createWeakCache();
+  private readonly valuesCache = createWeakCache();
 
-  private readonly valuesCache: WeakMap<K, V>;
-
-  constructor();
-  constructor(iterable?: Iterable<readonly [K, V]>);
-  constructor(entries?: readonly [K, V][] | null);
-  constructor(
-    existing?: readonly [K, V][] | Iterable<readonly [K, V]> | null | undefined
-  ) {
-    // TypeScript doesn't correctly resolve the overloads for calling the `Map`
-    // constructor for the no-value constructor. This resolves that.
-    this.valuesCache = existing ? new WeakMap(existing) : new WeakMap();
-  }
-
-  get [Symbol.toStringTag](): string {
-    return this.valuesCache[Symbol.toStringTag];
+  constructor(entries?: readonly [K, V][] | null) {
+    super();
+    if (entries) for (const entry of entries) super.set(...entry);
   }
 
   get(key: K): V | undefined {
-    track(key, this.signalsCache);
-    return this.valuesCache.get(key);
+    track(key, this.valuesCache);
+    return super.get(key);
   }
 
   has(key: K): boolean {
-    track(key, this.signalsCache);
-    return this.valuesCache.has(key);
+    track(key, this.keysCache);
+    return super.has(key);
   }
 
   set(key: K, value: V): this {
-    const prevValue = this.valuesCache.get(key);
+    const hasKey = super.has(key);
+    const currentValue = super.get(key);
+    const result = super.set(key, value);
 
-    this.valuesCache.set(key, value);
+    if (!hasKey) dirty(key, this.keysCache);
+    if (value !== currentValue) dirty(key, this.valuesCache);
 
-    if (value !== prevValue) dirty(key, this.signalsCache);
-
-    return this;
+    return result;
   }
 
   delete(key: K): boolean {
-    if (!this.valuesCache.has(key)) return false;
+    const currentValue = super.get(key);
+    const result = super.delete(key);
 
-    const currentValue = this.valuesCache.get(key);
-    const result = this.valuesCache.delete(key);
-
-    if (currentValue !== undefined) dirty(key, this.signalsCache);
+    if (result) {
+      dirty(key, this.keysCache);
+      if (currentValue !== undefined) dirty(key, this.valuesCache);
+    }
 
     return result;
   }
 }
 
-Object.setPrototypeOf(SignaledWeakMap.prototype, WeakMap.prototype);
-
-export function createWeakMap(): WeakMap<object, any>;
-export function createWeakMap<K extends object = object, V = unknown>(
-  entries?: readonly (readonly [K, V])[] | null
-): WeakMap<K, V>;
-export function createWeakMap<K extends object = object, V = unknown>(
-  iterable?: Iterable<readonly [K, V]>
-): WeakMap<K, V>;
-export function createWeakMap<K extends object = object, V = unknown>(
-  existing?:
-    | readonly (readonly [K, V])[]
-    | Iterable<readonly [K, V]>
-    | null
-    | undefined
+export function createWeakMap<K extends object = object, V = any>(
+  entries?: readonly [K, V][] | null
 ): WeakMap<K, V> {
-  return existing
-    ? new SignaledWeakMap<K, V>(existing)
-    : new SignaledWeakMap<K, V>();
+  return new SignaledWeakMap(entries);
 }

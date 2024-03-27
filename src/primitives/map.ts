@@ -2,119 +2,96 @@ import { createCache, track, dirty, dirtyAll } from "../utils/cache";
 
 const OBJECT_KEYS = Symbol("objectKeys");
 
-class SignaledMap<K = unknown, V = unknown> implements Map<K, V> {
-  private readonly signalsCache = createCache();
-  private readonly valuesCache: Map<K, V>;
+export class SignaledMap<K, V> extends Map<K, V> {
+  private readonly keysCache = createCache();
+  private readonly valuesCache = createCache();
 
-  constructor();
-  constructor(entries?: readonly (readonly [K, V])[] | null);
-  constructor(iterable?: Iterable<readonly [K, V]>);
-  constructor(
-    existing?:
-      | readonly (readonly [K, V])[]
-      | Iterable<readonly [K, V]>
-      | null
-      | undefined
-  ) {
-    // TypeScript doesn't correctly resolve the overloads for calling the `Map`
-    // constructor for the no-value constructor. This resolves that.
-    this.valuesCache = existing ? new Map(existing) : new Map();
+  constructor(entries?: readonly (readonly [K, V])[] | null) {
+    super();
+    if (entries) for (const entry of entries) super.set(...entry);
   }
 
   get size(): number {
-    track(OBJECT_KEYS, this.signalsCache);
-    return this.valuesCache.size;
-  }
-
-  get [Symbol.toStringTag](): string {
-    return this.valuesCache[Symbol.toStringTag];
+    track(OBJECT_KEYS, this.keysCache);
+    return super.size;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return this.valuesCache[Symbol.iterator]();
+    track(OBJECT_KEYS, this.keysCache);
+    return super[Symbol.iterator]();
   }
 
   get(key: K): V | undefined {
-    track(key, this.signalsCache);
-    return this.valuesCache.get(key);
+    track(key, this.valuesCache);
+    return super.get(key);
   }
 
   has(key: K): boolean {
-    track(key, this.signalsCache);
-    return this.valuesCache.has(key);
+    track(key, this.keysCache);
+    return super.has(key);
   }
 
   entries(): IterableIterator<[K, V]> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return this.valuesCache.entries();
+    track(OBJECT_KEYS, this.keysCache);
+    return super.entries();
   }
 
   keys(): IterableIterator<K> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return this.valuesCache.keys();
+    track(OBJECT_KEYS, this.keysCache);
+    return super.keys();
   }
 
   values(): IterableIterator<V> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return this.valuesCache.values();
+    track(OBJECT_KEYS, this.keysCache);
+    return super.values();
   }
 
   forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    track(OBJECT_KEYS, this.signalsCache);
-    this.valuesCache.forEach(fn);
+    track(OBJECT_KEYS, this.keysCache);
+    super.forEach(fn);
   }
 
   set(key: K, value: V): this {
-    const hasKey = this.valuesCache.has(key);
-    const prevValue = this.valuesCache.get(key);
+    const hasKey = super.has(key);
+    const currentValue = super.get(key);
+    const result = super.set(key, value);
 
-    this.valuesCache.set(key, value);
-
-    if (value !== prevValue) {
-      if (!hasKey) dirty(OBJECT_KEYS, this.signalsCache);
-      dirty(key, this.signalsCache);
+    if (!hasKey) {
+      dirty(OBJECT_KEYS, this.keysCache);
+      dirty(key, this.keysCache);
     }
 
-    return this;
+    if (value !== currentValue) {
+      dirty(key, this.valuesCache);
+    }
+
+    return result;
   }
 
   delete(key: K): boolean {
-    const currentValue = this.valuesCache.get(key);
-    const result = this.valuesCache.delete(key);
+    const currentValue = super.get(key);
+    const result = super.delete(key);
 
     if (result) {
-      dirty(OBJECT_KEYS, this.signalsCache);
-      if (currentValue !== undefined) dirty(key, this.signalsCache);
+      dirty(OBJECT_KEYS, this.keysCache);
+      dirty(key, this.keysCache);
+      if (currentValue !== undefined) dirty(key, this.valuesCache);
     }
 
     return result;
   }
 
   clear(): void {
-    this.valuesCache.clear();
-    dirtyAll(this.signalsCache);
-    dirty(OBJECT_KEYS, this.signalsCache);
+    if (super.size) {
+      super.clear();
+      dirtyAll(this.valuesCache);
+      dirty(OBJECT_KEYS, this.keysCache);
+    }
   }
 }
 
-Object.setPrototypeOf(SignaledMap.prototype, Map.prototype);
-
-export function createMap(): Map<any, any>;
-export function createMap<K = unknown, V = unknown>(
+export function createMap<K, V>(
   entries?: readonly (readonly [K, V])[] | null
-): Map<K, V>;
-export function createMap<K = unknown, V = unknown>(
-  iterable?: Iterable<readonly [K, V]>
-): Map<K, V>;
-export function createMap<K = unknown, V = unknown>(
-  existing?:
-    | readonly (readonly [K, V])[]
-    | Iterable<readonly [K, V]>
-    | null
-    | undefined
-): Map<K, V> {
-  return existing
-    ? new SignaledMap<K, V>(existing)
-    : new SignaledMap<any, any>();
+): SignaledMap<K, V> {
+  return new SignaledMap(entries);
 }
