@@ -26,8 +26,7 @@ describe("SignaledSet", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const set = new Set();
-        const signaledSet = createSet(set);
+        const signaledSet = createSet();
 
         createRenderEffect(() => {
           spy(signaledSet.has("track"));
@@ -45,8 +44,7 @@ describe("SignaledSet", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const set = new Set();
-        const signaledSet = createSet(set);
+        const signaledSet = createSet();
 
         createRenderEffect(() => {
           spy(signaledSet.keys());
@@ -66,8 +64,7 @@ describe("SignaledSet", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const set = new Set(["track"]);
-        const signaledSet = createSet(set);
+        const signaledSet = createSet(["track"]);
 
         createRenderEffect(() => {
           spy(signaledSet.keys());
@@ -104,8 +101,7 @@ describe("SignaledSet", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const set = new Set(["track"]);
-        const signaledSet = createSet(set);
+        const signaledSet = createSet(["track"]);
 
         createRenderEffect(() => {
           spy(signaledSet.has("track"));
@@ -123,8 +119,7 @@ describe("SignaledSet", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const set = new Set(["track"]);
-        const signaledSet = createSet(set);
+        const signaledSet = createSet(["track"]);
 
         createRenderEffect(() => {
           spy(signaledSet.keys());

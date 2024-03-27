@@ -26,8 +26,7 @@ describe("SignaledMap", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const map = new Map([["track", "me"]]);
-        const signaledMap = createMap(map);
+        const signaledMap = createMap([["track", "me"]]);
 
         createRenderEffect(() => {
           spy(signaledMap.get("track"));
@@ -45,8 +44,7 @@ describe("SignaledMap", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const map = new Map();
-        const signaledMap = createMap(map);
+        const signaledMap = createMap();
 
         createRenderEffect(() => {
           spy(signaledMap.keys());
@@ -66,8 +64,7 @@ describe("SignaledMap", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const map = new Map([["track", "me"]]);
-        const signaledMap = createMap(map);
+        const signaledMap = createMap([["track", "me"]]);
 
         createRenderEffect(() => {
           spy(signaledMap.get("track"));
@@ -85,8 +82,7 @@ describe("SignaledMap", () => {
       const spy = vi.fn();
 
       createRoot(() => {
-        const map = new Map([["track", "me"]]);
-        const signaledMap = createMap(map);
+        const signaledMap = createMap([["track", "me"]]);
 
         createRenderEffect(() => {
           spy(signaledMap.keys());
