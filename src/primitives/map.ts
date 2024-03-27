@@ -61,9 +61,7 @@ export class SignaledMap<K, V> extends Map<K, V> {
       dirty(key, this.keysCache);
     }
 
-    if (value !== currentValue) {
-      dirty(key, this.valuesCache);
-    }
+    if (value !== currentValue) dirty(key, this.valuesCache);
 
     return result;
   }
@@ -75,8 +73,9 @@ export class SignaledMap<K, V> extends Map<K, V> {
     if (result) {
       dirty(OBJECT_KEYS, this.keysCache);
       dirty(key, this.keysCache);
-      if (currentValue !== undefined) dirty(key, this.valuesCache);
     }
+    
+    if (currentValue !== undefined) dirty(key, this.valuesCache);
 
     return result;
   }
