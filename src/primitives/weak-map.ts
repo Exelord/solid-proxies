@@ -1,10 +1,7 @@
 import { batch } from "solid-js";
 import { createWeakCache, track, dirty } from "../utils/cache";
 
-export class SignaledWeakMap<
-  K extends object = object,
-  V = any
-> extends WeakMap<K, V> {
+export class SignaledWeakMap<K extends object, V> extends WeakMap<K, V> {
   private readonly keysCache = createWeakCache();
   private readonly valuesCache = createWeakCache();
 
