@@ -61,6 +61,44 @@ describe("SignaledSet", () => {
     });
   });
 
+  describe("clear", () => {
+    it("notifies on clear", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const set = new Set(["track"]);
+        const signaledSet = createSet(set);
+
+        createRenderEffect(() => {
+          spy(signaledSet.keys());
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledSet.clear();
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+
+    it("does not notify on empty set", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const signaledSet = createSet();
+
+        createRenderEffect(() => {
+          spy(signaledSet.keys());
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledSet.clear();
+      });
+
+      expect(spy).toBeCalledTimes(1);
+    });
+  });
   describe("delete", () => {
     it("uses signal to track properties", () => {
       const spy = vi.fn();

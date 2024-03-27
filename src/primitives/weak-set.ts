@@ -1,25 +1,21 @@
 import { createWeakCache, track, dirty } from "../utils/cache";
 
-class SignaledWeakSet<T extends object = object> implements WeakSet<T> {
+export class SignaledWeakSet<T extends object = object> extends WeakSet<T> {
   private readonly signalsCache = createWeakCache();
-  private readonly valuesCache: WeakSet<T>;
 
   constructor(values?: readonly T[] | null) {
-    this.valuesCache = new WeakSet(values);
-  }
-
-  get [Symbol.toStringTag](): string {
-    return this.valuesCache[Symbol.toStringTag];
+    super();
+    if (values) for (const v of values) super.add(v);
   }
 
   has(value: T): boolean {
     track(value, this.signalsCache);
-    return this.valuesCache.has(value);
+    return super.has(value);
   }
 
   add(value: T): this {
-    if (!this.valuesCache.has(value)) {
-      this.valuesCache.add(value);
+    if (!super.has(value)) {
+      super.add(value);
       dirty(value, this.signalsCache);
     }
 
@@ -27,7 +23,7 @@ class SignaledWeakSet<T extends object = object> implements WeakSet<T> {
   }
 
   delete(value: T): boolean {
-    const result = this.valuesCache.delete(value);
+    const result = super.delete(value);
 
     if (result) {
       dirty(value, this.signalsCache);
@@ -37,11 +33,8 @@ class SignaledWeakSet<T extends object = object> implements WeakSet<T> {
   }
 }
 
-// So instanceof works
-Object.setPrototypeOf(SignaledWeakSet.prototype, WeakSet.prototype);
-
 export function createWeakSet<T extends object = object>(
   values?: readonly T[] | null
-): WeakSet<T> {
+): SignaledWeakSet<T> {
   return new SignaledWeakSet(values);
 }
