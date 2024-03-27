@@ -59,6 +59,7 @@ export class SignaledMap<K, V> extends Map<K, V> {
   }
 
   get(key: K): V | undefined {
+    track(key, this.valuesCache);
     return super.get(key);
   }
 
@@ -100,7 +101,6 @@ export class SignaledMap<K, V> extends Map<K, V> {
       batch(() => {
         dirtyAll(this.keysCache);
         dirtyAll(this.valuesCache);
-        dirty(OBJECT_KEYS, this.keysCache);
       });
     }
   }

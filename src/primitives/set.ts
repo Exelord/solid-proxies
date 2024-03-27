@@ -11,13 +11,13 @@ export class SignaledSet<T> extends Set<T> {
     if (values) for (const v of values) super.add(v);
   }
 
+  [Symbol.iterator](): IterableIterator<T> {
+    return this.values();
+  }
+
   get size(): number {
     track(OBJECT_KEYS, this.valuesCache);
     return super.size;
-  }
-
-  [Symbol.iterator](): IterableIterator<T> {
-    return this.values();
   }
 
   keys(): IterableIterator<T> {
@@ -80,7 +80,6 @@ export class SignaledSet<T> extends Set<T> {
       super.clear();
       batch(() => {
         dirtyAll(this.valuesCache);
-        dirty(OBJECT_KEYS, this.valuesCache);
       });
     }
   }
