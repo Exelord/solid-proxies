@@ -37,10 +37,8 @@ export class SignaledMap<K, V> extends Map<K, V> {
   }
   *entries(): IterableIterator<[K, V]> {
     for (const entry of super.entries()) {
-      batch(() => {
-        track(entry[0], this.keysCache);
-        track(entry[0], this.valuesCache);
-      });
+      track(entry[0], this.keysCache);
+      track(entry[0], this.valuesCache);
       yield entry;
     }
     track(OBJECT_KEYS, this.keysCache);
@@ -61,7 +59,6 @@ export class SignaledMap<K, V> extends Map<K, V> {
   }
 
   get(key: K): V | undefined {
-    track(key, this.valuesCache);
     return super.get(key);
   }
 
