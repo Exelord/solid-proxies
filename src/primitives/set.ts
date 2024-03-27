@@ -1,9 +1,10 @@
+import { batch } from "solid-js";
 import { createCache, track, dirty, dirtyAll } from "../utils/cache";
 
 const OBJECT_KEYS = Symbol("objectKeys");
 
 export class SignaledSet<T> extends Set<T> {
-  private readonly signalsCache = createCache();
+  private readonly valuesCache = createCache();
 
   constructor(values?: readonly T[] | null) {
     super();
@@ -11,45 +12,51 @@ export class SignaledSet<T> extends Set<T> {
   }
 
   get size(): number {
-    track(OBJECT_KEYS, this.signalsCache);
+    track(OBJECT_KEYS, this.valuesCache);
     return super.size;
   }
 
   [Symbol.iterator](): IterableIterator<T> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return super[Symbol.iterator]();
-  }
-
-  entries(): IterableIterator<[T, T]> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return super.entries();
+    return this.values();
   }
 
   keys(): IterableIterator<T> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return super.keys();
+    return this.values();
   }
 
-  values(): IterableIterator<T> {
-    track(OBJECT_KEYS, this.signalsCache);
-    return super.values();
+  *values(): IterableIterator<T> {
+    for (const key of super.values()) {
+      track(key, this.valuesCache);
+      yield key;
+    }
+    track(OBJECT_KEYS, this.valuesCache);
+  }
+
+  *entries(): IterableIterator<[T, T]> {
+    for (const [key, value] of super.entries()) {
+      track(key, this.valuesCache);
+      yield [key, value];
+    }
+    track(OBJECT_KEYS, this.valuesCache);
   }
 
   forEach(fn: (value1: T, value2: T, set: Set<T>) => void): void {
-    track(OBJECT_KEYS, this.signalsCache);
+    track(OBJECT_KEYS, this.valuesCache);
     super.forEach(fn);
   }
 
   has(value: T): boolean {
-    track(value, this.signalsCache);
+    track(value, this.valuesCache);
     return super.has(value);
   }
 
   add(value: T): this {
     if (!super.has(value)) {
       super.add(value);
-      dirty(value, this.signalsCache);
-      dirty(OBJECT_KEYS, this.signalsCache);
+      batch(() => {
+        dirty(value, this.valuesCache);
+        dirty(OBJECT_KEYS, this.valuesCache);
+      });
     }
 
     return this;
@@ -59,8 +66,10 @@ export class SignaledSet<T> extends Set<T> {
     const result = super.delete(value);
 
     if (result) {
-      dirty(value, this.signalsCache);
-      dirty(OBJECT_KEYS, this.signalsCache);
+      batch(() => {
+        dirty(value, this.valuesCache);
+        dirty(OBJECT_KEYS, this.valuesCache);
+      });
     }
 
     return result;
@@ -69,8 +78,10 @@ export class SignaledSet<T> extends Set<T> {
   clear(): void {
     if (super.size) {
       super.clear();
-      dirtyAll(this.signalsCache);
-      dirty(OBJECT_KEYS, this.signalsCache);
+      batch(() => {
+        dirtyAll(this.valuesCache);
+        dirty(OBJECT_KEYS, this.valuesCache);
+      });
     }
   }
 }

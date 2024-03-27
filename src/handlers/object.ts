@@ -1,3 +1,4 @@
+import { batch } from "solid-js";
 import { createCache, track, dirty } from "../utils/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
@@ -49,12 +50,14 @@ export function createHandler<T extends Object>(
       const prevValue = Reflect.get(target, p);
       const result = Reflect.set(target, p, value);
 
-      if (!hasKey) {
-        dirty(OBJECT_KEYS, descriptorsCache);
-        dirty(p, descriptorsCache);
-      }
+      batch(() => {
+        if (!hasKey) {
+          dirty(OBJECT_KEYS, descriptorsCache);
+          dirty(p, descriptorsCache);
+        }
 
-      if (value !== prevValue) dirty(p, propertiesCache);
+        if (value !== prevValue) dirty(p, propertiesCache);
+      });
 
       return result;
     },
@@ -64,12 +67,14 @@ export function createHandler<T extends Object>(
       const result = Reflect.defineProperty(target, p, attributes);
       const value = Reflect.get(target, p);
 
-      if (!hasKey) {
-        dirty(OBJECT_KEYS, descriptorsCache);
-        dirty(p, descriptorsCache);
-      }
+      batch(() => {
+        if (!hasKey) {
+          dirty(OBJECT_KEYS, descriptorsCache);
+          dirty(p, descriptorsCache);
+        }
 
-      if (value !== undefined) dirty(p, propertiesCache);
+        if (value !== undefined) dirty(p, propertiesCache);
+      });
 
       return result;
     },
@@ -80,11 +85,12 @@ export function createHandler<T extends Object>(
       const result = Reflect.deleteProperty(target, p);
 
       if (hasKey) {
-        dirty(OBJECT_KEYS, descriptorsCache);
-        dirty(p, descriptorsCache);
+        batch(() => {
+          dirty(OBJECT_KEYS, descriptorsCache);
+          dirty(p, descriptorsCache);
+          if (currentValue !== undefined) dirty(p, propertiesCache);
+        });
       }
-
-      if (currentValue !== undefined) dirty(p, propertiesCache);
 
       return result;
     },

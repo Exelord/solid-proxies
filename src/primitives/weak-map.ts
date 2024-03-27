@@ -1,9 +1,10 @@
+import { batch } from "solid-js";
 import { createWeakCache, track, dirty } from "../utils/cache";
 
-export class SignaledWeakMap<K extends object = object, V = any> extends WeakMap<
-  K,
-  V
-> {
+export class SignaledWeakMap<
+  K extends object = object,
+  V = any
+> extends WeakMap<K, V> {
   private readonly keysCache = createWeakCache();
   private readonly valuesCache = createWeakCache();
 
@@ -27,8 +28,10 @@ export class SignaledWeakMap<K extends object = object, V = any> extends WeakMap
     const currentValue = super.get(key);
     const result = super.set(key, value);
 
-    if (!hasKey) dirty(key, this.keysCache);
-    if (value !== currentValue) dirty(key, this.valuesCache);
+    batch(() => {
+      if (!hasKey) dirty(key, this.keysCache);
+      if (value !== currentValue) dirty(key, this.valuesCache);
+    });
 
     return result;
   }
@@ -38,8 +41,10 @@ export class SignaledWeakMap<K extends object = object, V = any> extends WeakMap
     const result = super.delete(key);
 
     if (result) {
-      dirty(key, this.keysCache);
-      if (currentValue !== undefined) dirty(key, this.valuesCache);
+      batch(() => {
+        dirty(key, this.keysCache);
+        if (currentValue !== undefined) dirty(key, this.valuesCache);
+      });
     }
 
     return result;

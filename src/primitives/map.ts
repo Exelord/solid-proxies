@@ -1,3 +1,4 @@
+import { batch } from "solid-js";
 import { createCache, track, dirty, dirtyAll } from "../utils/cache";
 
 const OBJECT_KEYS = Symbol("objectKeys");
@@ -17,13 +18,41 @@ export class SignaledMap<K, V> extends Map<K, V> {
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    track(OBJECT_KEYS, this.keysCache);
-    return super[Symbol.iterator]();
+    return this.entries();
   }
 
-  get(key: K): V | undefined {
-    track(key, this.valuesCache);
-    return super.get(key);
+  *keys(): IterableIterator<K> {
+    for (const key of super.keys()) {
+      track(key, this.keysCache);
+      yield key;
+    }
+    track(OBJECT_KEYS, this.keysCache);
+  }
+  *values(): IterableIterator<V> {
+    for (const [key, v] of super.entries()) {
+      track(key, this.valuesCache);
+      yield v;
+    }
+    track(OBJECT_KEYS, this.keysCache);
+  }
+  *entries(): IterableIterator<[K, V]> {
+    for (const entry of super.entries()) {
+      batch(() => {
+        track(entry[0], this.keysCache);
+        track(entry[0], this.valuesCache);
+      });
+      yield entry;
+    }
+    track(OBJECT_KEYS, this.keysCache);
+  }
+
+  forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
+    track(OBJECT_KEYS, this.keysCache);
+    for (const [key, value] of super.entries()) {
+      track(key, this.keysCache);
+      track(key, this.valuesCache);
+      fn(value, key, this);
+    }
   }
 
   has(key: K): boolean {
@@ -31,24 +60,9 @@ export class SignaledMap<K, V> extends Map<K, V> {
     return super.has(key);
   }
 
-  entries(): IterableIterator<[K, V]> {
-    track(OBJECT_KEYS, this.keysCache);
-    return super.entries();
-  }
-
-  keys(): IterableIterator<K> {
-    track(OBJECT_KEYS, this.keysCache);
-    return super.keys();
-  }
-
-  values(): IterableIterator<V> {
-    track(OBJECT_KEYS, this.keysCache);
-    return super.values();
-  }
-
-  forEach(fn: (value: V, key: K, map: Map<K, V>) => void): void {
-    track(OBJECT_KEYS, this.keysCache);
-    super.forEach(fn);
+  get(key: K): V | undefined {
+    track(key, this.valuesCache);
+    return super.get(key);
   }
 
   set(key: K, value: V): this {
@@ -56,12 +70,14 @@ export class SignaledMap<K, V> extends Map<K, V> {
     const currentValue = super.get(key);
     const result = super.set(key, value);
 
-    if (!hasKey) {
-      dirty(OBJECT_KEYS, this.keysCache);
-      dirty(key, this.keysCache);
-    }
+    batch(() => {
+      if (!hasKey) {
+        dirty(OBJECT_KEYS, this.keysCache);
+        dirty(key, this.keysCache);
+      }
 
-    if (value !== currentValue) dirty(key, this.valuesCache);
+      if (value !== currentValue) dirty(key, this.valuesCache);
+    });
 
     return result;
   }
@@ -71,11 +87,12 @@ export class SignaledMap<K, V> extends Map<K, V> {
     const result = super.delete(key);
 
     if (result) {
-      dirty(OBJECT_KEYS, this.keysCache);
-      dirty(key, this.keysCache);
+      batch(() => {
+        dirty(OBJECT_KEYS, this.keysCache);
+        dirty(key, this.keysCache);
+        if (currentValue !== undefined) dirty(key, this.valuesCache);
+      });
     }
-    
-    if (currentValue !== undefined) dirty(key, this.valuesCache);
 
     return result;
   }
@@ -83,8 +100,11 @@ export class SignaledMap<K, V> extends Map<K, V> {
   clear(): void {
     if (super.size) {
       super.clear();
-      dirtyAll(this.valuesCache);
-      dirty(OBJECT_KEYS, this.keysCache);
+      batch(() => {
+        dirtyAll(this.keysCache);
+        dirtyAll(this.valuesCache);
+        dirty(OBJECT_KEYS, this.keysCache);
+      });
     }
   }
 }
