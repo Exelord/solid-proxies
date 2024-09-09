@@ -6,9 +6,9 @@ const OBJECT_KEYS = Symbol("objectKeys");
 export class SignaledSet<T> extends Set<T> {
   private readonly valuesCache = createCache();
 
-  constructor(values?: readonly T[] | null) {
+  constructor(values?: Iterable<T> | null) {
     super();
-    if (values) for (const v of values) super.add(v);
+    if (values) for (const value of values) super.add(value);
   }
 
   [Symbol.iterator](): IterableIterator<T> {
@@ -25,24 +25,27 @@ export class SignaledSet<T> extends Set<T> {
   }
 
   *values(): IterableIterator<T> {
-    for (const key of super.values()) {
-      track(key, this.valuesCache);
-      yield key;
-    }
     track(OBJECT_KEYS, this.valuesCache);
+
+    for (const value of super.values()) {
+      yield value;
+    }
   }
 
   *entries(): IterableIterator<[T, T]> {
-    for (const [key, value] of super.entries()) {
-      track(key, this.valuesCache);
-      yield [key, value];
-    }
     track(OBJECT_KEYS, this.valuesCache);
+
+    for (const entry of super.entries()) {
+      yield entry;
+    }
   }
 
-  forEach(fn: (value1: T, value2: T, set: Set<T>) => void): void {
+  forEach(
+    callbackfn: (value1: T, value2: T, set: Set<T>) => void,
+    thisArg?: any
+  ): void {
     track(OBJECT_KEYS, this.valuesCache);
-    super.forEach(fn);
+    super.forEach(callbackfn, thisArg);
   }
 
   has(value: T): boolean {
@@ -78,6 +81,7 @@ export class SignaledSet<T> extends Set<T> {
   clear(): void {
     if (super.size) {
       super.clear();
+
       batch(() => {
         dirtyAll(this.valuesCache);
       });
@@ -85,6 +89,6 @@ export class SignaledSet<T> extends Set<T> {
   }
 }
 
-export function createSet<T>(values?: readonly T[] | null): SignaledSet<T> {
+export function createSet<T>(values?: Iterable<T> | null): SignaledSet<T> {
   return new SignaledSet<T>(values);
 }

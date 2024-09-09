@@ -3,9 +3,9 @@ import { createWeakCache, track, dirty } from "../utils/cache";
 export class SignaledWeakSet<T extends object = object> extends WeakSet<T> {
   private readonly signalsCache = createWeakCache();
 
-  constructor(values?: readonly T[] | null) {
+  constructor(values?: Iterable<T> | null) {
     super();
-    if (values) for (const v of values) super.add(v);
+    if (values) for (const value of values) super.add(value);
   }
 
   has(value: T): boolean {
@@ -34,7 +34,7 @@ export class SignaledWeakSet<T extends object = object> extends WeakSet<T> {
 }
 
 export function createWeakSet<T extends object = object>(
-  values?: readonly T[] | null
+  values?: Iterable<T> | null
 ): SignaledWeakSet<T> {
   return new SignaledWeakSet(values);
 }
