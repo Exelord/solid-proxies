@@ -18,8 +18,6 @@ Solid Proxies is a JavaScript library that provides signaled versions of JavaScr
     - [SignaledArray](#signaledarray)
     - [SignaledMap](#signaledmap)
     - [SignaledWeakMap](#signaledweakmap)
-    - [SignaledSet](#signaledset)
-    - [SignaledWeakSet](#signaledweakset)
 
 ## Installation
 
@@ -199,64 +197,3 @@ people.set(person, "your favorite"); // This change will rerun the effect
 ```
 
 You can also use the `has` and `delete` methods of the `WeakMap` object to modify the key-value pairs of a `SignaledWeakMap` and trigger updates.
-
-### SignaledSet
-
-SignaledSet is a variant of the standard JavaScript Set type that automatically tracks changes to its elements. This means that any operation that modifies the elements of a SignaledSet, such as adding a new element, deleting an element, or checking if an element exists, will trigger an update and make your code react to the change.
-
-To use SignaledSet, you can import the createSet function from the solid-proxies library:
-
-```js
-import { createSet } from 'solid-proxies';
-```
-
-Then, you can create a new SignaledSet by calling createSet and passing in an array of elements as an argument:
-
-```js
-const people = createSet(["Maciej"]);
-```
-
-You can then use the SignaledSet like a normal JavaScript Set, but any changes you make to its elements will be tracked and can be reacted to by your code. For example:
-
-```js
-createEffect(() => {
-  console.log(people.has("Exelord"));
-});
-
-// After some time...
-people.add("Exelord"); // This change will rerun the effect
-```
-
-You can also use the various methods of the `Set` object, such as `delete`, `clear`, and `size`, to modify the elements of a `SignaledSet` and trigger updates.
-
-### SignaledWeakSet
-
-SignaledWeakSet is a variant of the standard JavaScript `WeakSet` type that automatically tracks changes to its elements. This means that any operation that modifies the elements of a SignaledWeakSet, such as adding a new element, deleting an element, or checking if an element exists, will trigger an update and make your code react to the change.
-
-Unlike a regular Set, a WeakSet only holds weak references to its elements, which means that the elements can be garbage collected if there are no other references to them. This makes WeakSets useful for storing metadata or other information that you don't want to keep alive longer than necessary.
-
-To use SignaledWeakSet, you can import the `createWeakSet` function from the solid-proxies library:
-
-```js
-import { createWeakSet } from 'solid-proxies';
-```
-
-Then, you can create a new SignaledWeakSet by calling `createWeakSet`:
-
-```js
-const person = { name: "Maciej" };
-const people = createWeakSet();
-```
-
-You can then use the SignaledWeakSet like a normal JavaScript WeakSet, but any changes you make to its elements will be tracked and can be reacted to by your code. For example:
-
-```js
-createEffect(() => {
-  console.log(people.has(person));
-});
-
-// After some time...
-people.add(person); // This change
-```
-
-You can also use other methods of the `WeakSet` object to modify the elements of a SignaledWeakSet and trigger updates.
