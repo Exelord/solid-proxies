@@ -23,6 +23,44 @@ describe("SignaledObject", () => {
       expect(spy).toBeCalledTimes(2);
     });
 
+    it("tracks values", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = { track: "me" };
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(Object.values(signaledObject));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledObject.track = "you";
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+
+    it("tracks entries", () => {
+      const spy = vi.fn();
+
+      createRoot(() => {
+        const object = { track: "me" };
+        const signaledObject = createObject(object);
+
+        createRenderEffect(() => {
+          spy(Object.entries(signaledObject));
+        });
+
+        expect(spy).toBeCalledTimes(1);
+
+        signaledObject.track = "you";
+      });
+
+      expect(spy).toBeCalledTimes(2);
+    });
+    
     it("tracks keys", () => {
       const spy = vi.fn();
 
