@@ -16,8 +16,6 @@ Solid Proxies is a JavaScript library that provides signaled versions of JavaScr
   - [Usage](#usage)
     - [SignaledObject](#signaledobject)
     - [SignaledArray](#signaledarray)
-    - [SignaledMap](#signaledmap)
-    - [SignaledWeakMap](#signaledweakmap)
 
 ## Installation
 
@@ -136,64 +134,3 @@ users[0].favoriteColors = createArray(["yellow", "purple"]);
 // And then...
 users[0].favoriteColors[0] = "green"; // This change WILL rerun the effect
 ```
-
-### SignaledMap
-
-SignaledMap is a variant of the standard JavaScript Map type that automatically tracks changes to its key-value pairs. This means that any operation that modifies the key-value pairs of a SignaledMap, such as setting a new value, deleting a key-value pair, or adding a new key-value pair, will trigger an update and make your code react to the change.
-
-To use SignaledMap, you can import the createMap function from the solid-proxies library:
-
-```js
-import { createMap } from 'solid-proxies';
-```
-
-Then, you can create a new SignaledMap by calling createMap and passing in an array of key-value pairs as an argument:
-
-```js
-const people = createMap([[1, "Maciej"]]);
-```
-
-You can then use the SignaledMap like a normal JavaScript Map, but any changes you make to its key-value pairs will be tracked and can be reacted to by your code. For example:
-
-```js
-createEffect(() => {
-  console.log(people.get(1));
-});
-
-// After some time...
-people.set(1, 'Exelord'); // This change will rerun the effect
-```
-
-You can also use the various methods of the `Map` object, such as `has`, `delete`, and `clear`, to modify the key-value pairs of a `SignaledMap` and trigger updates.
-
-### SignaledWeakMap
-
-SignaledWeakMap is a variant of the standard JavaScript `WeakMap` type that automatically tracks changes to its key-value pairs. This means that any operation that modifies the key-value pairs of a SignaledWeakMap, such as setting a new value, deleting a key-value pair, or adding a new key-value pair, will trigger an update and make your code react to the change.
-
-Unlike a regular Map, a WeakMap only holds weak references to its keys, which means that the keys can be garbage collected if there are no other references to them. This makes WeakMaps useful for storing metadata or other information that you don't want to keep alive longer than necessary.
-
-To use SignaledWeakMap, you can import the `createWeakMap` function from the solid-proxies library:
-
-```js
-import { createWeakMap } from 'solid-proxies';
-```
-
-Then, you can create a new SignaledWeakMap by calling createWeakMap and passing in an array of key-value pairs as an argument:
-
-```js
-const person = { name: "Maciej" };
-const people = createWeakMap([[person, "my favorite"]]);
-```
-
-You can then use the SignaledWeakMap like a normal JavaScript WeakMap, but any changes you make to its key-value pairs will be tracked and can be reacted to by your code. For example:
-
-```js
-createEffect(() => {
-  console.log(people.get(person)));
-});
-
-// After some time...
-people.set(person, "your favorite"); // This change will rerun the effect
-```
-
-You can also use the `has` and `delete` methods of the `WeakMap` object to modify the key-value pairs of a `SignaledWeakMap` and trigger updates.
