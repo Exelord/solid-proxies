@@ -3,6 +3,16 @@ import { describe, it, expect, vi } from "vitest";
 import { createObject } from "../../../src/primitives/object";
 
 describe("SignaledObject", () => {
+  it("clones object", () => {
+    const obj = { track: "me" };
+    const signaledObject = createObject(obj);
+
+    signaledObject.track = "you";
+
+    expect(obj.track).toBe("me");
+    expect(signaledObject.track).toBe("you");
+  });
+
   describe("set", () => {
     it("uses signal to track properties", () => {
       const spy = vi.fn();
@@ -60,7 +70,7 @@ describe("SignaledObject", () => {
 
       expect(spy).toBeCalledTimes(2);
     });
-    
+
     it("tracks keys", () => {
       const spy = vi.fn();
 

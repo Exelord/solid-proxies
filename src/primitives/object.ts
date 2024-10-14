@@ -22,7 +22,7 @@ const SignaledObject = function <T extends Record<PropertyKey, unknown>>(
     Object.defineProperty(clone, prop, descriptors[prop]);
   }
 
-  return new Proxy(obj, {
+  return new Proxy(clone, {
     ...createHandler<T>(),
     getPrototypeOf() {
       return SignaledObject.prototype;
