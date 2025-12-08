@@ -3,7 +3,7 @@ import { createCache, track, dirty } from "../utils/cache";
 
 export const OBJECT_KEYS = Symbol("objectKeys");
 
-export interface ObjectProxyHandler<T extends Object> extends ProxyHandler<T> {
+export interface ObjectProxyHandler<T extends object> extends ProxyHandler<T> {
   defineProperty(
     target: T,
     p: string | symbol,
@@ -20,7 +20,7 @@ export interface ObjectProxyHandler<T extends Object> extends ProxyHandler<T> {
   set(target: T, p: string | symbol, value: any, receiver: any): boolean;
 }
 
-export function createHandler<T extends Object>(
+export function createHandler<T extends object>(
   propertiesCache = createCache(),
   descriptorsCache = createCache()
 ): ObjectProxyHandler<T> {

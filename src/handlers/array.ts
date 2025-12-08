@@ -5,17 +5,17 @@ import {
   OBJECT_KEYS,
 } from "./object";
 
-export interface ArrayProxyHandler<T extends Object>
+export interface ArrayProxyHandler<T extends object>
   extends ObjectProxyHandler<T> {}
 
-const arrayProps: Array<string | Symbol> = [
+const arrayProps: Array<string | symbol> = [
   "length",
   "values",
   "keys",
   "entries",
 ];
 
-export function createHandler<T extends Object>(): ArrayProxyHandler<T> {
+export function createHandler<T extends object>(): ArrayProxyHandler<T> {
   const propertiesCache = createCache();
   const descriptorsCache = createCache();
   const objectHandler = createObjectHandler(propertiesCache, descriptorsCache);

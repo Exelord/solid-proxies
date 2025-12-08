@@ -3,6 +3,11 @@ import { describe, it, expect, vi } from "vitest";
 import { createObject } from "../../../src/primitives/object";
 
 describe("SignaledObject", () => {
+  it("works good with types", () => {
+    interface State {}
+    createObject<State>({});
+  });
+
   it("clones object", () => {
     const obj = { track: "me" };
     const signaledObject = createObject(obj);

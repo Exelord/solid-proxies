@@ -5,14 +5,10 @@ interface SignaledObject {
     entries: Iterable<readonly [PropertyKey, T]>
   ): { [key: PropertyKey]: T };
 
-  new <T extends Record<PropertyKey, unknown> = Record<PropertyKey, unknown>>(
-    obj: T
-  ): T;
+  new <T extends object>(obj: T): T;
 }
 
-const SignaledObject = function <T extends Record<PropertyKey, unknown>>(
-  obj: T
-): T {
+const SignaledObject = function <T extends object>(obj: T): T {
   let proto = Object.getPrototypeOf(obj);
   let descriptors = Object.getOwnPropertyDescriptors(obj);
 
@@ -36,8 +32,6 @@ SignaledObject.fromEntries = function <T = unknown>(
   return new SignaledObject(Object.fromEntries(entries));
 };
 
-export function createObject<T extends Record<PropertyKey, unknown>>(
-  object: T
-): T {
+export function createObject<T extends object>(object: T): T {
   return new SignaledObject(object);
 }
