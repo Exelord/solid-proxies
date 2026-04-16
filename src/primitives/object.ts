@@ -12,18 +12,17 @@ const SignaledObject = function <T extends object>(obj: T): T {
   let proto = Object.getPrototypeOf(obj);
   let descriptors = Object.getOwnPropertyDescriptors(obj);
 
-  let clone = Object.create(proto) as T;
-
-  for (let prop in descriptors) {
-    Object.defineProperty(clone, prop, descriptors[prop]);
+  for (const key of Reflect.ownKeys(descriptors)) {
+    const d = (descriptors as Record<PropertyKey, PropertyDescriptor>)[
+      key as PropertyKey
+    ];
+    d.configurable = true;
+    if ("writable" in d) d.writable = true;
   }
 
-  return new Proxy(clone, {
-    ...createHandler<T>(),
-    getPrototypeOf() {
-      return SignaledObject.prototype;
-    },
-  });
+  let clone = Object.create(proto, descriptors) as T;
+
+  return new Proxy(clone, createHandler<T>());
 } as any as SignaledObject;
 
 SignaledObject.fromEntries = function <T = unknown>(

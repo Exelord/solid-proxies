@@ -18,6 +18,60 @@ describe("SignaledObject", () => {
     expect(signaledObject.track).toBe("you");
   });
 
+  it("creates a mutable proxy even when the input is frozen", () => {
+    const original = Object.freeze({ x: 1 });
+    const signaledObject = createObject(original);
+
+    signaledObject.x = 2;
+    expect(signaledObject.x).toBe(2);
+  });
+
+  it("preserves the source prototype chain for instanceof checks", () => {
+    class Source {}
+    const signaledObject = createObject(new Source());
+
+    expect(signaledObject instanceof Source).toBe(true);
+  });
+
+  it("reflects prototype changes via getPrototypeOf", () => {
+    const signaledObject = createObject({});
+
+    const newProto = { inherited: true };
+    Object.setPrototypeOf(signaledObject, newProto);
+
+    expect(Object.getPrototypeOf(signaledObject)).toBe(newProto);
+  });
+
+  it("preserves accessor properties when cloning", () => {
+    const original = {};
+    Object.defineProperty(original, "answer", {
+      get() {
+        return 42;
+      },
+      enumerable: true,
+      configurable: true,
+    });
+
+    const signaledObject = createObject(original) as { answer: number };
+
+    expect(signaledObject.answer).toBe(42);
+    const desc = Object.getOwnPropertyDescriptor(signaledObject, "answer");
+    expect(desc?.get).toBeTypeOf("function");
+  });
+
+  it("preserves symbol-keyed properties when cloning", () => {
+    const id = Symbol("id");
+    const original = { name: "a", [id]: 42 } as {
+      name: string;
+      [key: symbol]: number;
+    };
+
+    const signaledObject = createObject(original);
+
+    expect(signaledObject[id]).toBe(42);
+    expect(Object.getOwnPropertySymbols(signaledObject)).toContain(id);
+  });
+
   describe("set", () => {
     it("uses signal to track properties", () => {
       const spy = vi.fn();
