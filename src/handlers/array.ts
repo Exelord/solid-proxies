@@ -1,13 +1,6 @@
 import { batch } from "solid-js";
 import { createCache, dirty, track } from "../utils/cache";
-import {
-  createHandler as createObjectHandler,
-  ObjectProxyHandler,
-  OBJECT_KEYS,
-} from "./object";
-
-export interface ArrayProxyHandler<T extends object>
-  extends ObjectProxyHandler<T> {}
+import { createHandler as createObjectHandler, OBJECT_KEYS } from "./object";
 
 const arrayProps: Array<string | symbol> = [
   "length",
@@ -16,7 +9,7 @@ const arrayProps: Array<string | symbol> = [
   "entries",
 ];
 
-export function createHandler<T extends object>(): ArrayProxyHandler<T> {
+export function createHandler<T extends object>(): ProxyHandler<T> {
   const propertiesCache = createCache();
   const descriptorsCache = createCache();
   const existenceCache = createCache();
@@ -26,7 +19,7 @@ export function createHandler<T extends object>(): ArrayProxyHandler<T> {
     existenceCache
   );
 
-  const handler: ArrayProxyHandler<T> = {
+  return {
     ...objectHandler,
 
     get(target, p, receiver) {
@@ -63,9 +56,7 @@ export function createHandler<T extends object>(): ArrayProxyHandler<T> {
         return result;
       }
 
-      return objectHandler.set(target, p, value, receiver);
+      return Reflect.set(target, p, value, receiver);
     },
   };
-
-  return handler;
 }

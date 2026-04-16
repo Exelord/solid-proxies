@@ -33,29 +33,12 @@ function valueChanged(
   return prev?.value !== next?.value;
 }
 
-export interface ObjectProxyHandler<T extends object> extends ProxyHandler<T> {
-  defineProperty(
-    target: T,
-    p: string | symbol,
-    attributes: PropertyDescriptor
-  ): boolean;
-  deleteProperty(target: T, p: string | symbol): boolean;
-  get(target: T, p: string | symbol, receiver: any): any;
-  getOwnPropertyDescriptor(
-    target: T,
-    p: string | symbol
-  ): PropertyDescriptor | undefined;
-  has(target: T, p: string | symbol): boolean;
-  ownKeys(target: T): ArrayLike<string | symbol>;
-  set(target: T, p: string | symbol, value: any, receiver: any): boolean;
-}
-
 export function createHandler<T extends object>(
   propertiesCache = createCache(),
   descriptorsCache = createCache(),
   existenceCache = createCache()
-): ObjectProxyHandler<T> {
-  const handler: ObjectProxyHandler<T> = {
+): ProxyHandler<T> {
+  return {
     get(target, p, receiver) {
       track(p, propertiesCache);
       return Reflect.get(target, p, receiver);
@@ -66,7 +49,7 @@ export function createHandler<T extends object>(
       return Reflect.has(target, p);
     },
 
-    getOwnPropertyDescriptor(target: T, p: string | symbol) {
+    getOwnPropertyDescriptor(target, p) {
       track(p, descriptorsCache);
       return Reflect.getOwnPropertyDescriptor(target, p);
     },
@@ -74,24 +57,6 @@ export function createHandler<T extends object>(
     ownKeys(target) {
       track(OBJECT_KEYS, descriptorsCache);
       return Reflect.ownKeys(target);
-    },
-
-    set(target, p, value, receiver) {
-      const hasKey = Reflect.has(target, p);
-      const prevValue = Reflect.get(target, p, receiver);
-      const result = Reflect.set(target, p, value, receiver);
-
-      batch(() => {
-        if (!hasKey) {
-          dirty(OBJECT_KEYS, descriptorsCache);
-          dirty(p, descriptorsCache);
-          dirty(p, existenceCache);
-        }
-
-        if (value !== prevValue) dirty(p, propertiesCache);
-      });
-
-      return result;
     },
 
     defineProperty(target, p, attributes) {
@@ -153,6 +118,4 @@ export function createHandler<T extends object>(
       return result;
     },
   };
-
-  return handler;
 }
